@@ -147,7 +147,7 @@ private:
     void SetDead(ePedestrianDeathReason deathReason);
     void SetCarEntered(Vehicle* targetCar, eCarSeat targetSeat);
     void SetCarExited();
-    void SetBurnEffectActive(bool isActive);
+    void SetBurnEffectActive(bool isActive, GameObject* source = nullptr);
 
     void UpdateBurnEffect();
     void UpdateDamageFromRailways();
@@ -175,6 +175,9 @@ private:
 
     // active effects
     Decoration* mFireEffect = nullptr;
+
+    // who was the source of setting us on fire
+    GameObject* mFireSource = nullptr;
 };
 
 const int Sizeof_Pedestrian = sizeof(Pedestrian);

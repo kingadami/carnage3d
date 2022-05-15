@@ -272,6 +272,16 @@ void HumanPlayer::SetWantedLevel(int wantedLevel)
     mWantedLevel = wantedLevel;
 }
 
+int HumanPlayer::GetScore() const
+{
+  return mScore;
+}
+
+void HumanPlayer::SetScore(const int score)
+{
+  mScore = score;
+}
+
 void HumanPlayer::SwitchNextWeapon()
 {
     int nextWeaponIndex = (mCharacter->mCurrentWeapon + 1) % eWeapon_COUNT;

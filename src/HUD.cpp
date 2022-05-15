@@ -548,6 +548,12 @@ void HUDWantedLevelPanel::Self_SetupHUD()
 
 //////////////////////////////////////////////////////////////////////////
 
+HUDScoresPanel::HUDScoresPanel():
+  HUDPanel()
+{
+  mScoreCounter.SetText(cxx::va("%d", mCurrScore));
+}
+
 void HUDScoresPanel::SetScores(int score, int lives, int multiplier)
 {
     if (score != mCurrScore)
@@ -913,7 +919,7 @@ void HUD::UpdateScreen()
     }
 
     // update scores
-    mScoresPanel.SetScores(100, 4, 1); // todo: implement scores system
+    mScoresPanel.SetScores(mHumanPlayer->GetScore(), 4, 1); // todo: implement scores system
 
                                        // todo: implement bonus
     if (true)

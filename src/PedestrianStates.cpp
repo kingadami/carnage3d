@@ -254,7 +254,7 @@ bool PedestrianStatesManager::TryProcessDamage(const DamageInfo& damageInfo)
     {
         if (mPedestrian->IsBurn()) // already burning
             return false;
-        mPedestrian->SetBurnEffectActive(true);
+        mPedestrian->SetBurnEffectActive(true, damageInfo.GetDamageCauser());
         return true;
     }
 

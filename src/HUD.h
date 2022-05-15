@@ -193,6 +193,7 @@ private:
 class HUDScoresPanel: public HUDPanel
 {
 public:
+    HUDScoresPanel();
     void SetScores(int score, int lives, int multiplier);
 protected:
     // override HUDPanel

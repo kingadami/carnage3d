@@ -42,6 +42,9 @@ public:
     // Get or set current police attention level
     int GetWantedLevel() const;
     void SetWantedLevel(int wantedLevel);
+
+    int GetScore() const;
+    void SetScore(const int score);
    
     // Mouse aiming control
     void SetMouseAiming(bool isEnabled);
@@ -86,6 +89,7 @@ private:
 private:
     int mLastDistrictIndex = 0; // district index where character was last time
     int mWantedLevel = 0; // current police attention level
+    int mScore = 0; // current player score
     
     float mRespawnTime = 0.0f;
     bool mUpdateInputs = false;

@@ -608,7 +608,7 @@ void Pedestrian::DieFromDamage(const DamageInfo& damageInfo)
     mStatesManager.ChangeState(ePedestrianState_Dead, evData);
 }
 
-void Pedestrian::SetBurnEffectActive(bool activate)
+void Pedestrian::SetBurnEffectActive(bool activate, GameObject* source)
 {
     if (activate == IsBurn())
         return;
@@ -626,6 +626,7 @@ void Pedestrian::SetBurnEffectActive(bool activate)
             AttachObject(mFireEffect);
         }
         mBurnStartTime = gTimeManager.mGameTime;
+        mFireSource = source;
     }
     else
     {
@@ -636,6 +637,7 @@ void Pedestrian::SetBurnEffectActive(bool activate)
         }
         mFireEffect->MarkForDeletion();
         mFireEffect = nullptr;
+        mFireSource = nullptr;
     }
 }
 
@@ -650,7 +652,7 @@ void Pedestrian::UpdateBurnEffect()
     if (gTimeManager.mGameTime > (mBurnStartTime + gGameParams.mPedestrianBurnDuration))
     {
         DamageInfo damageInfo;
-        damageInfo.SetFireDamage(nullptr);
+        damageInfo.SetFireDamage(mFireSource);
         DieFromDamage(damageInfo);
         return;
     }
