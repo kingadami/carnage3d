@@ -9,8 +9,10 @@
 #include "Pedestrian.h"
 #include "TimeManager.h"
 #include "GameObjectsManager.h"
+#include "GameObjectHelpers.h"
 #include "AudioManager.h"
 #include "Collider.h"
+#include "CarnageGame.h"
 
 Vehicle::Vehicle(GameObjectID id) : GameObject(eGameObjectClass_Car, id)
     , mCarWrecked()
@@ -763,6 +765,26 @@ void Vehicle::HandleCollision(const Collision& collision)
     DamageInfo damageInfo;
     damageInfo.SetCollisionDamage(collision);
     ReceiveDamage(damageInfo);
+
+    if(collision.mContactInfo.mThatObject->IsVehicleClass())
+    {
+        Pedestrian* driver = GetCarDriver();
+        if(driver && driver->IsHumanPlayerCharacter())
+        {
+          const float deltaImpulse = damageInfo.mContactImpulse - mPrevImpulse;
+          //gConsole.LogMessage(eLogMessage_Info,"Collided with another vehicle: Current %f Delta %f",
+          //                    damageInfo.mContactImpulse, deltaImpulse);
+          //FIXME: Magic number
+          if (deltaImpulse > 1000.0f)
+          {
+            int playerIndex = gCarnageGame.GetHumanPlayerIndex(driver);
+            HumanPlayer* humanPlayer = gCarnageGame.mHumanPlayers[playerIndex];
+            humanPlayer->SetScore(humanPlayer->GetScore() + 10);
+          }
+
+          mPrevImpulse = damageInfo.mContactImpulse;
+        }
+    }
 }
 
 void Vehicle::HandleCollisionWithMap(const MapCollision& collision)

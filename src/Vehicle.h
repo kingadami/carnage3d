@@ -183,4 +183,7 @@ private:
     float mFrontTireOffset = 0.0f; // steer
     float mRearTireOffset = 0.0f; // drive
     float mSteeringAngleRadians = 0.0f;
+
+    // stores the previous impact value to see if we should score
+    float mPrevImpulse = 0.0f;
 };
