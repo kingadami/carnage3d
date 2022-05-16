@@ -658,12 +658,42 @@ bool Vehicle::ReceiveDamage(const DamageInfo& damageInfo)
     if (damageInfo.mDamageCause == eDamageCause_Bullet)
     {
         mCurrentDamage += 5; // todo: magic numbers
+
+        // Check to see if this damage causes a score or not
+        const int pointValue = IsCriticalDamageState() ? 100 : 10;
+        if (damageInfo.mSourceObject)
+        {
+          if (Projectile* bullet = ToProjectile(damageInfo.mSourceObject))
+          {
+            if (bullet->mShooter->IsHumanPlayerCharacter())
+            {
+              int playerIndex = gCarnageGame.GetHumanPlayerIndex(bullet->mShooter);
+              HumanPlayer* humanPlayer = gCarnageGame.mHumanPlayers[playerIndex];
+              humanPlayer->SetScore(humanPlayer->GetScore() + pointValue);
+            }
+          }
+        }
         return true;
     }
-    
+
     if (damageInfo.mDamageCause == eDamageCause_Flame)
     {
-        mCurrentDamage += 15; // todo: magic numbers
+      mCurrentDamage += 15; // todo: magic numbers
+
+      // Check to see if this damage causes a score or not
+      const int pointValue = IsCriticalDamageState() ? 100 : 10;
+      if (damageInfo.mSourceObject)
+        {
+          if (Projectile* bullet = ToProjectile(damageInfo.mSourceObject))
+            {
+              if (bullet->mShooter->IsHumanPlayerCharacter())
+                {
+                  int playerIndex = gCarnageGame.GetHumanPlayerIndex(bullet->mShooter);
+                  HumanPlayer* humanPlayer = gCarnageGame.mHumanPlayers[playerIndex];
+                  humanPlayer->SetScore(humanPlayer->GetScore() + pointValue);
+                }
+            }
+        }
         return true;
     }
 
