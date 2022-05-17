@@ -39,7 +39,8 @@ void Vehicle::HandleSpawn()
     shapeData.SetAsBox(halfExtents, glm::vec3());
 
     PhysicsMaterial materialData;
-    materialData.mDensity = 80.0f; // todo: magic numbers
+    // A multiplication factor of 190 seems nice for the weight
+    materialData.mDensity = (190.0f * mCarInfo->mWeight) / (mCarInfo->mDimensions.x * mCarInfo->mDimensions.y * 1.0f);
     materialData.mFriction = 0.0f;
     materialData.mRestitution = 0.0f;
 
@@ -1090,26 +1091,41 @@ void Vehicle::UpdateDrive(const DriveCtlState& currCtlState)
     if (currCtlState.mDriveDirection == 0.0f)
         return;
 
-    float driveForce = 100750.0f; // todo: magic numbers
-    float brakeForce = driveForce * mCarInfo->mHandbrakeFriction;
+    //Calculate the force requried to reach the desired acceleration.  This is the max force we can apply
+    float driveForce = mPhysicsBody->GetMass() * 5.0f * mCarInfo->mAcceleration; //Scale acceleration by 5.0 TODO: Magic number
+    float brakeForce = mPhysicsBody->GetMass() * 2.0f * mCarInfo->mBraking; //Scale the brakes by less or they are too good
     float reverseForce = driveForce * 0.75f;
+
+    gConsole.LogMessage(eLogMessage_Info,"Vehicle physics: mMaxSpeed: %hd, mMinSpeed: %hd, mWeight: %hd, mAcceleration: %hd, mBraking: %hd",
+                        mCarInfo->mMaxSpeed,mCarInfo->mMinSpeed,mCarInfo->mWeight,mCarInfo->mAcceleration,mCarInfo->mBraking);
 
     float currentSpeed = GetCurrentSpeed();
     float engineForce = 0.0f;
 
+    gConsole.LogMessage(eLogMessage_Info,"Vehicle physics: Mass: %f, Speed: %f",mPhysicsBody->GetMass(),currentSpeed);
     if (currCtlState.mDriveDirection > 0.0f)
     {
-        engineForce = driveForce;
+        //Calculate the force required to not exceed our max speed
+        const float velDelta = mCarInfo->mMaxSpeed - currentSpeed;
+        const float accelForce = mPhysicsBody->GetMass() * velDelta / gPhysics.GetSimulationStepTime();
+
+        // Adjust force to not exceed our max speed for this vehicle
+        engineForce = std::min(driveForce,accelForce);
     }
     else
     {
+        //Calculate the force required to not exceed our min speed which is a neg number
+        const float velDelta = currentSpeed - mCarInfo->mMinSpeed;
+        const float accelForce = mPhysicsBody->GetMass() * velDelta / gPhysics.GetSimulationStepTime();
+
         if (currentSpeed > 0.0f)
         {
             engineForce = brakeForce;
         }
         else
         {
-            engineForce = reverseForce;
+            // Adjust force to not exceed our min speed for this vehicle
+            engineForce = std::min(reverseForce,accelForce);
         }
     }
 
