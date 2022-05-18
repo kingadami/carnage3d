@@ -5,8 +5,8 @@
 class FollowCameraController final: public CameraController
 {
 public:
-    static const float MIN_SCROLL_HEIGHT_OFFSET = -3.0f;
-    static const float MAX_SCROLL_HEIGHT_OFFSET = 23.0f;
+    static constexpr float MIN_SCROLL_HEIGHT_OFFSET = -3.0f;
+    static constexpr float MAX_SCROLL_HEIGHT_OFFSET = 23.0f;
 
     FollowCameraController();
 
