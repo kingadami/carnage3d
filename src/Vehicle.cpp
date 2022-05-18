@@ -1056,16 +1056,31 @@ void Vehicle::UpdateFriction(const DriveCtlState& currCtlState)
         linearSpeed = glm::length(linearVelocityVector);
     }
 
+    // Perform skid calculations.  The car will want to skid more based on the absolute value
+    // of its max speed and how close it is to its max speed.
+
     // kill lateral velocity front tire
     {
-        glm::vec2 impulse = mPhysicsBody->GetMass() * 0.20f * -GetTireLateralVelocity(eCarTire_Front);
-        mPhysicsBody->ApplyLinearImpulse(impulse, GetTirePosition(eCarTire_Front));
+        glm::vec2 impulse = mPhysicsBody->GetMass() * -GetTireLateralVelocity(eCarTire_Front);
+        float speedScale = 1.0f;
+        if (GetCurrentSpeed() > mCarInfo->mMaxSpeed / 2.0f)
+        {
+          const float newValue = (GetCurrentSpeed() * (mCarInfo->mMaxSpeed / 2.0f)) / (mCarInfo->mMaxSpeed);
+          speedScale -= newValue / (mCarInfo->mMaxSpeed / 2.0f);
+        }
+        mPhysicsBody->ApplyLinearImpulse((0.07f + (0.13f * speedScale)) * impulse, GetTirePosition(eCarTire_Front));
     }
 
     // kill lateral velocity rear tire
     {
-        glm::vec2 impulse = mPhysicsBody->GetMass() * 0.20f * -GetTireLateralVelocity(eCarTire_Rear);
-        mPhysicsBody->ApplyLinearImpulse(impulse, GetTirePosition(eCarTire_Rear));
+        glm::vec2 impulse = mPhysicsBody->GetMass() * -GetTireLateralVelocity(eCarTire_Rear);
+        float speedScale = 1.0f;
+        if (GetCurrentSpeed() > mCarInfo->mMaxSpeed / 2.0f)
+        {
+          const float newValue = (GetCurrentSpeed() * (mCarInfo->mMaxSpeed / 2.0f)) / (mCarInfo->mMaxSpeed);
+          speedScale -= newValue / (mCarInfo->mMaxSpeed / 2.0f);
+        }
+        mPhysicsBody->ApplyLinearImpulse((0.07f + (0.10f * speedScale)) * impulse, GetTirePosition(eCarTire_Rear));
     }
 
     // rolling resistance
