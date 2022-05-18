@@ -1092,17 +1092,18 @@ void Vehicle::UpdateDrive(const DriveCtlState& currCtlState)
         return;
 
     //Calculate the force requried to reach the desired acceleration.  This is the max force we can apply
-    float driveForce = mPhysicsBody->GetMass() * 5.0f * mCarInfo->mAcceleration; //Scale acceleration by 5.0 TODO: Magic number
+    //Attempt to scale the acceleration based on the configured mass of the car not the physics model mass
+    const float scallingFactor = std::max(0.8f,2.0f + (55.0f - mCarInfo->mMass) / 50.0f);
+    float driveForce = mPhysicsBody->GetMass() * scallingFactor * mCarInfo->mAcceleration; //Scale acceleration by scallFactor
     float brakeForce = mPhysicsBody->GetMass() * 2.0f * mCarInfo->mBraking; //Scale the brakes by less or they are too good
     float reverseForce = driveForce * 0.75f;
 
-    gConsole.LogMessage(eLogMessage_Info,"Vehicle physics: mMaxSpeed: %hd, mMinSpeed: %hd, mWeight: %hd, mAcceleration: %hd, mBraking: %hd",
-                        mCarInfo->mMaxSpeed,mCarInfo->mMinSpeed,mCarInfo->mWeight,mCarInfo->mAcceleration,mCarInfo->mBraking);
+    //gConsole.LogMessage(eLogMessage_Info,"Vehicle physics: mMaxSpeed: %hd, mMinSpeed: %hd, mWeight: %hd, mAcceleration: %hd, mBraking: %hd, mMass: %f, scallingFactor: %f",
+    //mCarInfo->mMaxSpeed,mCarInfo->mMinSpeed,mCarInfo->mWeight,mCarInfo->mAcceleration,mCarInfo->mBraking,mCarInfo->mMass,scallingFactor);
 
     float currentSpeed = GetCurrentSpeed();
     float engineForce = 0.0f;
 
-    gConsole.LogMessage(eLogMessage_Info,"Vehicle physics: Mass: %f, Speed: %f",mPhysicsBody->GetMass(),currentSpeed);
     if (currCtlState.mDriveDirection > 0.0f)
     {
         //Calculate the force required to not exceed our max speed
