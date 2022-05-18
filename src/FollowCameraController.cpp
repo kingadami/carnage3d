@@ -43,7 +43,6 @@ void FollowCameraController::UpdateFrame()
         return;
 
     glm::vec3 position = mFollowPedestrian->mTransformSmooth.mPosition;
-    position.y = position.y + (mFollowPedCameraHeight + mScrollHeightOffset);
 
     float catchSpeed = mFollowPedCameraCatchSpeed;
     // todo: temporary implementation
@@ -52,9 +51,22 @@ void FollowCameraController::UpdateFrame()
         glm::vec2 carVelocity = mFollowPedestrian->mCurrentCar->mPhysicsBody->GetLinearVelocity();
         float carSpeed = glm::length(carVelocity);
         carVelocity = glm::normalize(carVelocity);
-        position.x += (carVelocity.x * carSpeed * 0.35f); // todo: magic numbers
-        position.z += (carVelocity.y * carSpeed * 0.35f); // todo: magic numbers
+        //The number is the percentage of "leed" the camera will have (i.e. the larger it is then the
+        //more infront of the car the camera will be centered)
+        position.x += (carVelocity.x * carSpeed * 0.45f); // todo: magic numbers
+        position.z += (carVelocity.y * carSpeed * 0.45f); // todo: magic numbers
         catchSpeed *= 0.3f; // todo: magic numbers
+
+        // Also, as the car moves we want to "zoom" out some to allow more of the map to be seen
+        float carHeightOffset = (MAX_SCROLL_HEIGHT_OFFSET - mScrollHeightOffset) * (carSpeed / mFollowPedestrian->mCurrentCar->mCarInfo->mMaxSpeed);
+        if(carHeightOffset <= 0.0f)
+          carHeightOffset = 0.0f;
+        position.y += mFollowPedCameraHeight + mScrollHeightOffset + carHeightOffset;
+    }
+    else
+    {
+        //Not in a car so don't zoom out any
+        position.y = position.y + (mFollowPedCameraHeight + mScrollHeightOffset);
     }
 
     float deltaTime = gTimeManager.mGameFrameDelta;
@@ -79,7 +91,9 @@ void FollowCameraController::InputEvent(MouseMovedInputEvent& inputEvent)
 
 void FollowCameraController::InputEvent(MouseScrollInputEvent& inputEvent)
 {
-    mScrollHeightOffset = glm::clamp(mScrollHeightOffset - inputEvent.mScrollY, -3.0f, 23.0f);
+    mScrollHeightOffset = glm::clamp(mScrollHeightOffset - inputEvent.mScrollY,
+                                     MIN_SCROLL_HEIGHT_OFFSET,
+                                     MAX_SCROLL_HEIGHT_OFFSET);
 }
 
 void FollowCameraController::SetFollowTarget(Pedestrian* pedestrian)
