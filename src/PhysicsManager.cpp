@@ -63,7 +63,7 @@ void PhysicsManager::EnterWorld()
     mBox2World->SetContactListener(this);
 
     mSimulationStepTime = 1.0f / std::max(gCvarPhysicsFramerate.mValue, 1.0f);
-    mGravity = Convert::MapUnitsToMeters(0.5f);
+    mGravity = 9.8f; //Convert::MapUnitsToMeters(0.5f);
 
     CreateMapCollisionShape();
 }
